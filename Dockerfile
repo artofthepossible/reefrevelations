@@ -1,17 +1,47 @@
-#Use an official python runtime as a parent image
-#FROM python:3.8-alpine
-FROM python:3.12-alpine 
+# Use an official Python runtime as a parent image
+FROM python:3.12-alpine as builder
 
-#Set the working directory in the container
+# Create a new user and group with the ID 1000
+RUN addgroup -S appgroup && adduser -S -g appgroup appuser
+
+# Set the working directory in the container
 WORKDIR /code
 
-#Copy the files into the container
+# Copy the requirements file
+COPY requirements.txt requirements.txt
+
+# Install Flask and other dependencies
+RUN pip install -r requirements.txt
+
+# Copy the rest of the files into the container
 COPY . .
 
-RUN pip install Flask
+# Set the ownership of the working directory to the non-root user
+RUN chown -R appuser:appgroup /code
 
-#Expose the port your app will run on (replace port 3000 with your desired port)
+# Create a smaller, final image that only contains the necessary runtime dependencies
+FROM python:3.12-alpine
+
+# Create a new user and group with the same ID as the builder stage
+RUN addgroup -S appgroup && adduser -S -g appgroup appuser
+
+# Set the working directory in the container
+WORKDIR /code
+
+# Copy only the installed packages from the builder stage
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+
+# Copy the application code
+COPY . .
+
+# Set the ownership of the working directory to the non-root user
+RUN chown -R appuser:appgroup /code
+
+# Expose the port your app will run on
 EXPOSE 5000
 
-#Define the command to run your Flask application
+# Switch to the non-root user
+USER appuser
+
+# Define the command to run your Flask application
 CMD ["python", "app.py"]
