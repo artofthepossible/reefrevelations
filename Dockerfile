@@ -1,5 +1,9 @@
 # Use an official Python runtime as a parent image
-FROM python:3.12-alpine as builder
+#worse image
+FROM python:3.8-alpine as builder
+#better image
+#FROM python:3.12-alpine as builder
+
 
 # Create a new user and group with the ID 1000
 RUN addgroup -S appgroup && adduser -S -g appgroup appuser
@@ -20,7 +24,11 @@ COPY . .
 RUN chown -R appuser:appgroup /code
 
 # Create a smaller, final image that only contains the necessary runtime dependencies
-FROM python:3.12-alpine
+#worse image
+FROM python:3.8-alpine
+#better image
+#FROM python:3.12-alpine
+
 
 # Create a new user and group with the same ID as the builder stage
 RUN addgroup -S appgroup && adduser -S -g appgroup appuser
