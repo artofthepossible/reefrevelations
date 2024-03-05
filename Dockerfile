@@ -37,7 +37,10 @@ RUN addgroup -S appgroup && adduser -S -g appgroup appuser
 WORKDIR /code
 
 # Copy only the installed packages from the builder stage
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+#worse
+COPY --from=builder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
+#better
+#COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 
 # Copy the application code
 COPY . .
